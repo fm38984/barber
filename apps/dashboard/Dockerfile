@@ -1,5 +1,5 @@
 FROM node:22-alpine AS base
-RUN corepack enable pnpm
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 # ---- Dependencies stage ----
 FROM base AS deps
