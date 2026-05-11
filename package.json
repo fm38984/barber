@@ -20,6 +20,17 @@
     "db:seed": "pnpm --filter @barberflow/db seed",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\" --ignore-path .gitignore"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "@nestjs/core",
+      "@prisma/client",
+      "@prisma/engines",
+      "esbuild",
+      "msgpackr-extract",
+      "prisma"
+    ]
+  },
   "devDependencies": {
     "@barberflow/tsconfig": "workspace:*",
     "@types/node": "^20.14.0",
