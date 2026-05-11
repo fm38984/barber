@@ -1,0 +1,142 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # Lint & Typecheck
+  # ─────────────────────────────────────────────────────────────
+  lint-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+        env:
+          DATABASE_URL: 'postgresql://barberflow:password@localhost:5432/barberflow'
+          DIRECT_DATABASE_URL: 'postgresql://barberflow:password@localhost:5432/barberflow'
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+  # ─────────────────────────────────────────────────────────────
+  # Unit & Integration tests
+  # ─────────────────────────────────────────────────────────────
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: barberflow
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: barberflow_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+        env:
+          DATABASE_URL: 'postgresql://barberflow:password@localhost:5433/barberflow_test'
+          DIRECT_DATABASE_URL: 'postgresql://barberflow:password@localhost:5433/barberflow_test'
+
+      - name: Run database migrations
+        run: pnpm db:migrate:deploy
+        env:
+          DATABASE_URL: 'postgresql://barberflow:password@localhost:5433/barberflow_test'
+          DIRECT_DATABASE_URL: 'postgresql://barberflow:password@localhost:5433/barberflow_test'
+
+      - name: Run unit tests
+        run: pnpm test
+        env:
+          NODE_ENV: test
+          TEST_DATABASE_URL: 'postgresql://barberflow:password@localhost:5433/barberflow_test'
+
+      - name: Run tenant isolation tests
+        run: pnpm test:integration
+        env:
+          NODE_ENV: test
+          TEST_DATABASE_URL: 'postgresql://barberflow:password@localhost:5433/barberflow_test'
+          WHATSAPP_APP_SECRET: 'ci-test-secret'
+          WHATSAPP_VERIFY_TOKEN: 'ci-test-verify-token'
+
+  # ─────────────────────────────────────────────────────────────
+  # Build
+  # ─────────────────────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint-typecheck]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+        env:
+          DATABASE_URL: 'postgresql://barberflow:password@localhost:5432/barberflow'
+          DIRECT_DATABASE_URL: 'postgresql://barberflow:password@localhost:5432/barberflow'
+
+      - name: Build all apps
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_placeholder' }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY || 'sk_test_placeholder' }}

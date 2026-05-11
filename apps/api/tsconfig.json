@@ -1,0 +1,13 @@
+{
+  "extends": "@barberflow/tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "@barberflow/db": ["../../packages/db/src"],
+      "@barberflow/shared-types": ["../../packages/shared-types/src"]
+    }
+  },
+  "include": ["src/**/*", "test/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

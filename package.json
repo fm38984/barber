@@ -1,0 +1,30 @@
+{
+  "name": "barberflow",
+  "private": true,
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "test:integration": "turbo test:integration",
+    "db:generate": "pnpm --filter @barberflow/db generate",
+    "db:migrate:dev": "pnpm --filter @barberflow/db migrate:dev",
+    "db:migrate:deploy": "pnpm --filter @barberflow/db migrate:deploy",
+    "db:studio": "pnpm --filter @barberflow/db studio",
+    "db:seed": "pnpm --filter @barberflow/db seed",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\" --ignore-path .gitignore"
+  },
+  "devDependencies": {
+    "@barberflow/tsconfig": "workspace:*",
+    "@types/node": "^20.14.0",
+    "prettier": "^3.3.0",
+    "turbo": "^2.1.0",
+    "typescript": "^5.5.0"
+  }
+}

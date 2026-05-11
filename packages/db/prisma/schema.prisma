@@ -1,0 +1,359 @@
+// This is your Prisma schema file.
+// Learn more about it at: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  directUrl         = env("DIRECT_DATABASE_URL")
+}
+
+// =============================================================
+// PLATFORM TABLES — no tenant_id, no RLS
+// =============================================================
+
+model Tenant {
+  id                    String       @id @default(cuid())
+  name                  String
+  slug                  String       @unique
+  whatsappPhoneNumberId String       @unique @map("whatsapp_phone_number_id")
+  status                TenantStatus @default(TRIAL)
+  planId                String       @map("plan_id")
+  timezone              String       @default("America/Mexico_City")
+  welcomeMessage        String?      @map("welcome_message")
+  whatsappAccessToken   String       @default("") @map("whatsapp_access_token")
+  createdAt             DateTime     @default(now()) @map("created_at")
+  updatedAt             DateTime     @updatedAt @map("updated_at")
+
+  plan          Plan          @relation(fields: [planId], references: [id])
+  subscription  Subscription?
+  tenantAdmins  TenantAdmin[]
+  barbers       Barber[]
+  services      Service[]
+  customers     Customer[]
+  appointments  Appointment[]
+  conversations Conversation[]
+  messages      Message[]
+  reminders     Reminder[]
+
+  @@map("tenants")
+}
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  TRIAL
+
+  @@map("tenant_status")
+}
+
+model Plan {
+  id                   String   @id @default(cuid())
+  name                 String
+  priceUsd             Decimal  @db.Decimal(10, 2) @map("price_usd")
+  maxBarbers           Int      @map("max_barbers")
+  maxAppointmentsMonth Int      @map("max_appointments_month")
+  featuresJson         Json     @default("{}") @map("features_json")
+  isActive             Boolean  @default(true) @map("is_active")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  tenants       Tenant[]
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  tenantId             String             @unique @map("tenant_id")
+  planId               String             @map("plan_id")
+  stripeSubscriptionId String             @unique @map("stripe_subscription_id")
+  stripeCustomerId     String             @map("stripe_customer_id")
+  status               SubscriptionStatus
+  currentPeriodEnd     DateTime           @map("current_period_end")
+  cancelAtPeriodEnd    Boolean            @default(false) @map("cancel_at_period_end")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  @@map("subscriptions")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  TRIALING
+  INCOMPLETE
+
+  @@map("subscription_status")
+}
+
+model SuperAdminUser {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  hashedPassword String   @map("hashed_password")
+  role           String   @default("super_admin")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("super_admin_users")
+}
+
+model PlatformAuditLog {
+  id             String   @id @default(cuid())
+  actor          String
+  action         String
+  targetTenantId String?  @map("target_tenant_id")
+  payload        Json     @default("{}")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([targetTenantId])
+  @@index([createdAt])
+  @@map("platform_audit_logs")
+}
+
+// =============================================================
+// PER-TENANT TABLES — all have tenant_id + RLS enforced
+// =============================================================
+
+model TenantAdmin {
+  id          String          @id @default(cuid())
+  tenantId    String          @map("tenant_id")
+  name        String
+  phone       String?
+  email       String
+  role        TenantAdminRole @default(MANAGER)
+  clerkUserId String?         @unique @map("clerk_user_id")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([clerkUserId])
+  @@map("tenant_admins")
+}
+
+enum TenantAdminRole {
+  OWNER
+  MANAGER
+
+  @@map("tenant_admin_role")
+}
+
+model Barber {
+  id               String       @id @default(cuid())
+  tenantId         String       @map("tenant_id")
+  name             String
+  phone            String?
+  whatsappPhone    String?      @map("whatsapp_phone")
+  status           BarberStatus @default(ACTIVE)
+  // {"monday":{"start":"09:00","end":"18:00","breaks":[{"start":"13:00","end":"14:00"}]},...}
+  workingHoursJson Json         @default("{}") @map("working_hours_json")
+  commissionPct    Decimal?     @db.Decimal(5, 2) @map("commission_pct")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  appointments Appointment[]
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@map("barbers")
+}
+
+enum BarberStatus {
+  ACTIVE
+  INACTIVE
+
+  @@map("barber_status")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  name        String
+  durationMin Int      @map("duration_min")
+  priceLocal  Decimal  @db.Decimal(10, 2) @map("price_local")
+  currency    String   @default("USD")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  appointments Appointment[]
+
+  @@index([tenantId])
+  @@index([tenantId, isActive])
+  @@map("services")
+}
+
+model Customer {
+  id            String    @id @default(cuid())
+  tenantId      String    @map("tenant_id")
+  whatsappPhone String    @map("whatsapp_phone")
+  name          String?
+  firstSeenAt   DateTime  @default(now()) @map("first_seen_at")
+  lastVisitAt   DateTime? @map("last_visit_at")
+  notes         String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  appointments  Appointment[]
+  conversations Conversation[]
+
+  @@unique([tenantId, whatsappPhone])
+  @@index([tenantId])
+  @@index([tenantId, whatsappPhone])
+  @@map("customers")
+}
+
+model Appointment {
+  id           String                @id @default(cuid())
+  tenantId     String                @map("tenant_id")
+  customerId   String                @map("customer_id")
+  barberId     String                @map("barber_id")
+  serviceId    String                @map("service_id")
+  scheduledAt  DateTime              @map("scheduled_at")
+  durationMin  Int                   @map("duration_min")
+  status       AppointmentStatus     @default(REQUESTED)
+  priceCharged Decimal?              @db.Decimal(10, 2) @map("price_charged")
+  createdVia   AppointmentCreatedVia @default(WHATSAPP) @map("created_via")
+  notes        String?
+  createdAt    DateTime              @default(now()) @map("created_at")
+  updatedAt    DateTime              @updatedAt @map("updated_at")
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id])
+  customer  Customer   @relation(fields: [customerId], references: [id])
+  barber    Barber     @relation(fields: [barberId], references: [id])
+  service   Service    @relation(fields: [serviceId], references: [id])
+  reminders Reminder[]
+
+  @@index([tenantId])
+  @@index([tenantId, scheduledAt])
+  @@index([tenantId, barberId, scheduledAt])
+  @@index([tenantId, customerId])
+  @@index([tenantId, status])
+  @@map("appointments")
+}
+
+enum AppointmentStatus {
+  REQUESTED
+  CONFIRMED
+  REMINDED
+  COMPLETED
+  NO_SHOW
+  CANCELLED
+
+  @@map("appointment_status")
+}
+
+enum AppointmentCreatedVia {
+  WHATSAPP
+  DASHBOARD
+
+  @@map("appointment_created_via")
+}
+
+model Conversation {
+  id            String             @id @default(cuid())
+  tenantId      String             @map("tenant_id")
+  customerId    String             @map("customer_id")
+  // {"state":"CHOOSING_SERVICE","data":{"serviceId":"..."}}
+  stateJson     Json               @default("{\"state\":\"IDLE\"}") @map("state_json")
+  status        ConversationStatus @default(ACTIVE)
+  lastMessageAt DateTime?          @map("last_message_at")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  customer Customer  @relation(fields: [customerId], references: [id])
+  messages Message[]
+
+  @@unique([tenantId, customerId])
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, lastMessageAt])
+  @@map("conversations")
+}
+
+enum ConversationStatus {
+  ACTIVE
+  ESCALATED
+  CLOSED
+
+  @@map("conversation_status")
+}
+
+model Message {
+  id                String           @id @default(cuid())
+  tenantId          String           @map("tenant_id")
+  conversationId    String           @map("conversation_id")
+  direction         MessageDirection
+  whatsappMessageId String?          @unique @map("whatsapp_message_id")
+  body              String
+  status            MessageStatus    @default(SENT)
+  sentAt            DateTime?        @map("sent_at")
+  createdAt         DateTime         @default(now()) @map("created_at")
+
+  tenant       Tenant       @relation(fields: [tenantId], references: [id])
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, conversationId])
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+enum MessageDirection {
+  IN
+  OUT
+
+  @@map("message_direction")
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+
+  @@map("message_status")
+}
+
+model Reminder {
+  id            String         @id @default(cuid())
+  tenantId      String         @map("tenant_id")
+  appointmentId String         @map("appointment_id")
+  scheduledAt   DateTime       @map("scheduled_at")
+  status        ReminderStatus @default(PENDING)
+  channel       String         @default("whatsapp")
+  sentAt        DateTime?      @map("sent_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, appointmentId])
+  @@index([status, scheduledAt])
+  @@map("reminders")
+}
+
+enum ReminderStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+
+  @@map("reminder_status")
+}
