@@ -4,12 +4,12 @@ RUN corepack enable pnpm
 # ---- Dependencies stage ----
 FROM base AS deps
 WORKDIR /app
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
+COPY package.json pnpm-workspace.yaml ./
 COPY packages/db/package.json ./packages/db/
 COPY packages/shared-types/package.json ./packages/shared-types/
 COPY packages/tsconfig/package.json ./packages/tsconfig/
 COPY apps/api/package.json ./apps/api/
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # ---- Build stage ----
 FROM base AS builder
@@ -23,7 +23,6 @@ RUN pnpm --filter @barberflow/api build
 
 # ---- Runtime stage ----
 FROM node:20-alpine AS runner
-RUN corepack enable pnpm
 WORKDIR /app
 ENV NODE_ENV=production
 
