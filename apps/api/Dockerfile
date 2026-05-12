@@ -48,6 +48,8 @@ COPY --from=builder /app/packages/db/node_modules ./packages/db/node_modules
 # Compiled workspace packages (apps/api/node_modules/@barberflow/* symlinks point here)
 COPY --from=builder /app/packages/db/dist ./packages/db/dist
 COPY --from=builder /app/packages/db/package.json ./packages/db/package.json
+# Prisma schema + migrations needed for migrate deploy at startup
+COPY --from=builder /app/packages/db/prisma ./packages/db/prisma
 COPY --from=builder /app/packages/shared-types/dist ./packages/shared-types/dist
 COPY --from=builder /app/packages/shared-types/package.json ./packages/shared-types/package.json
 # Compiled API
@@ -59,4 +61,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
 
 # Run from the API's own directory so pnpm symlinks resolve correctly
 WORKDIR /app/apps/api
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "/app/node_modules/.bin/prisma migrate deploy --schema=/app/packages/db/prisma/schema.prisma && node dist/main.js"]
