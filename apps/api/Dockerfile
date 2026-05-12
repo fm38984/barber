@@ -18,9 +18,15 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/packages/db/node_modules ./packages/db/node_modules
 COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
 COPY . .
-# Generate Prisma client, then expose generated types to root node_modules
-# so TypeScript resolution (which follows pnpm symlinks to .pnpm store) finds them
-RUN pnpm --filter @barberflow/db generate && cp -r packages/db/node_modules/.prisma node_modules/
+# Generate Prisma client, copy generated .prisma/client into the pnpm virtual
+# store entry for @prisma/client AND into root node_modules for TypeScript.
+# The pnpm store copy is critical at runtime: @prisma/client's index.js looks
+# for .prisma/client as a bare module starting from its own directory inside
+# .pnpm/, so the generated files must live alongside the stub there.
+RUN pnpm --filter @barberflow/db generate && \
+    cp -r packages/db/node_modules/.prisma node_modules/ && \
+    PNPM_PRISMA=$(ls -d node_modules/.pnpm/@prisma+client* 2>/dev/null | head -1) && \
+    [ -n "$PNPM_PRISMA" ] && cp -r packages/db/node_modules/.prisma/client/. "${PNPM_PRISMA}/node_modules/.prisma/client/"
 RUN pnpm --filter @barberflow/shared-types build
 RUN pnpm --filter @barberflow/db build
 RUN pnpm --filter @barberflow/api build
@@ -30,8 +36,6 @@ FROM node:22-alpine AS runner
 RUN apk add --no-cache openssl
 WORKDIR /app
 ENV NODE_ENV=production
-# Required for Prisma to resolve .prisma/client through pnpm workspace symlinks
-ENV NODE_OPTIONS=--preserve-symlinks
 
 # pnpm virtual store + hoisted packages (symlink targets live here)
 COPY --from=builder /app/node_modules ./node_modules
