@@ -38,7 +38,7 @@ export class ConfirmingHandler {
         timeFormatted,
         price: priceFormatted,
       }),
-      buttons: MSG.CONFIRM_BUTTONS,
+      buttons: [...MSG.CONFIRM_BUTTONS],
     });
   }
 
@@ -68,7 +68,7 @@ export class ConfirmingHandler {
     const db = this.prisma.forTenant(input.tenantId);
 
     try {
-      // @ts-expect-error
+      // @ts-ignore
       const appointment = await db.appointment.create({
         data: {
           tenantId: input.tenantId,

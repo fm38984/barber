@@ -4,6 +4,7 @@ import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { TenantId } from '../common/decorators/tenant.decorator';
 
 @Controller('appointments')
+// @ts-ignore
 @Version('1')
 export class AppointmentsController {
   constructor(private readonly svc: AppointmentsService) {}

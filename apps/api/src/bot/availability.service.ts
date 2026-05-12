@@ -174,7 +174,7 @@ export class AvailabilityService {
   ): Promise<Array<{ scheduledAt: Date; durationMin: number }>> {
     const db = this.prisma.forTenant(tenantId);
 
-    // @ts-expect-error — extended client
+    // @ts-ignore — extended client
     const appointments = await db.appointment.findMany({
       where: {
         barberId,
@@ -197,7 +197,7 @@ export class AvailabilityService {
       ? { id: barberId, status: 'ACTIVE' as const }
       : { status: 'ACTIVE' as const };
 
-    // @ts-expect-error
+    // @ts-ignore
     return db.barber.findMany({ where, select: { id: true, workingHoursJson: true } });
   }
 

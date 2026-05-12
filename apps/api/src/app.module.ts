@@ -35,8 +35,9 @@ import { SuperAdminModule } from './super-admin/super-admin.module';
             return { method: req.method, url: req.url };
           },
         },
-        customProps: (req: { tenantId?: string }) => ({
-          tenant_id: req.tenantId,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        customProps: (req: any) => ({
+          tenant_id: req.tenantId as string | undefined,
         }),
       },
     }),

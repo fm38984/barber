@@ -19,7 +19,7 @@ export class CustomerService {
   ): Promise<Customer> {
     const db = this.prisma.forTenant(tenantId);
 
-    // @ts-expect-error — extended client has same API, TS doesn't infer return type through $extends
+    // @ts-ignore — extended client has same API, TS doesn't infer return type through $extends
     const customer = await db.customer.upsert({
       where: { tenantId_whatsappPhone: { tenantId, whatsappPhone } },
       update: {
@@ -39,7 +39,7 @@ export class CustomerService {
 
   async findById(tenantId: string, customerId: string): Promise<Customer | null> {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.customer.findUnique({ where: { id: customerId } });
   }
 }

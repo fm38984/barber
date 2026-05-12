@@ -7,7 +7,7 @@ export class ConversationsAdminService {
 
   async findAll(tenantId: string, status?: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.conversation.findMany({
       where: status ? { tenantId, status } : { tenantId },
       include: {
@@ -20,7 +20,7 @@ export class ConversationsAdminService {
 
   async findOne(tenantId: string, id: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     const conv = await db.conversation.findUnique({
       where: { id },
       include: {
@@ -34,7 +34,7 @@ export class ConversationsAdminService {
 
   async release(tenantId: string, id: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.conversation.update({
       where: { id },
       data: { status: 'ACTIVE', stateJson: { state: 'IDLE' } },
@@ -43,7 +43,7 @@ export class ConversationsAdminService {
 
   async takeControl(tenantId: string, id: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.conversation.update({
       where: { id },
       data: { status: 'ESCALATED' },

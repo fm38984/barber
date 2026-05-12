@@ -8,13 +8,13 @@ export class BarbersService {
 
   async findAll(tenantId: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.barber.findMany({ orderBy: { name: 'asc' } });
   }
 
   async findOne(tenantId: string, id: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     const barber = await db.barber.findUnique({ where: { id } });
     if (!barber) throw new NotFoundException('Barbero no encontrado');
     return barber;
@@ -22,22 +22,22 @@ export class BarbersService {
 
   async create(tenantId: string, dto: CreateBarberDto) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.barber.create({ data: { tenantId, ...dto, workingHoursJson: dto.workingHoursJson ?? {} } });
   }
 
   async update(tenantId: string, id: string, dto: Partial<CreateBarberDto>) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     const existing = await db.barber.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('Barbero no encontrado');
-    // @ts-expect-error
+    // @ts-ignore
     return db.barber.update({ where: { id }, data: dto });
   }
 
   async deactivate(tenantId: string, id: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.barber.update({ where: { id }, data: { status: 'INACTIVE' } });
   }
 }

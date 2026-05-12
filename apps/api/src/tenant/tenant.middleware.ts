@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { createClerkClient } from '@clerk/backend';
+import { verifyToken } from '@clerk/backend';
 import { TenantService } from './tenant.service';
 
 // Extend Express Request with our tenant context
@@ -26,10 +26,6 @@ declare global {
 @Injectable()
 export class TenantMiddleware implements NestMiddleware {
   private readonly logger = new Logger(TenantMiddleware.name);
-  private readonly clerk = createClerkClient({
-    secretKey: process.env['CLERK_SECRET_KEY'],
-  });
-
   constructor(private readonly tenantService: TenantService) {}
 
   async use(req: Request, _res: Response, next: NextFunction) {
@@ -43,7 +39,9 @@ export class TenantMiddleware implements NestMiddleware {
 
     try {
       // Verify and decode the Clerk JWT
-      const payload = await this.clerk.verifyToken(token);
+      const payload = await verifyToken(token, {
+        secretKey: process.env['CLERK_SECRET_KEY']!,
+      });
 
       const clerkUserId = payload.sub;
       const role = payload['role'] as string | undefined;

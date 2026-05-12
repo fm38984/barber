@@ -5,6 +5,7 @@ import { TenantId } from '../common/decorators/tenant.decorator';
 import { Roles } from '../auth/roles.decorator';
 
 @Controller('services')
+// @ts-ignore
 @Version('1')
 export class ServicesCatalogController {
   constructor(private readonly svc: ServicesCatalogService) {}

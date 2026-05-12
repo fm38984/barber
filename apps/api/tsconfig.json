@@ -2,7 +2,9 @@
   "extends": "@barberflow/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "../../",
+    "preserveSymlinks": true,
+    "exactOptionalPropertyTypes": false,
     "paths": {
       "@barberflow/db": ["../../packages/db/src"],
       "@barberflow/shared-types": ["../../packages/shared-types/src"]

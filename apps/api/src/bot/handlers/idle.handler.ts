@@ -67,7 +67,7 @@ export class IdleHandler {
         to: input.customerPhone,
         body,
         buttonText: MSG.MAIN_MENU_BUTTON,
-        sections: [{ rows: MSG.MAIN_MENU_OPTIONS }],
+        sections: [{ rows: [...MSG.MAIN_MENU_OPTIONS] }],
       },
     );
   }

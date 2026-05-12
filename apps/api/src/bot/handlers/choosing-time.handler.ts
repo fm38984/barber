@@ -29,7 +29,7 @@ export class ChoosingTimeHandler {
         type: 'interactive_buttons',
         to: input.customerPhone,
         body: MSG.NO_AVAILABILITY_TIME,
-        buttons: MSG.NO_AVAILABILITY_TIME_BUTTONS,
+        buttons: [...MSG.NO_AVAILABILITY_TIME_BUTTONS],
       });
       return;
     }

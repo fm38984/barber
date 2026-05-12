@@ -61,7 +61,7 @@ export class CancellingHandler {
       ],
     });
 
-    return { state: 'CANCELLING_SELECT', ...input.currentState };
+    return { ...input.currentState, state: 'CANCELLING_SELECT' };
   }
 
   // State: CANCELLING_SELECT (waiting for user to pick which appointment)
@@ -98,7 +98,7 @@ export class CancellingHandler {
       type: 'interactive_buttons',
       to: input.customerPhone,
       body: MSG.CANCEL_CONFIRM(appointment.serviceName, dateFormatted, timeFormatted),
-      buttons: MSG.CANCEL_CONFIRM_BUTTONS,
+      buttons: [...MSG.CANCEL_CONFIRM_BUTTONS],
     });
 
     return { state: 'CANCELLING_CONFIRM', cancelTargetId: appointment.id };
@@ -127,7 +127,7 @@ export class CancellingHandler {
 
     const db = this.prisma.forTenant(input.tenantId);
     try {
-      // @ts-expect-error
+      // @ts-ignore
       await db.appointment.update({
         where: { id: targetId },
         data: { status: 'CANCELLED' },
@@ -154,7 +154,7 @@ export class CancellingHandler {
 
   private async getCancellable(tenantId: string, customerId: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     const rows = await db.appointment.findMany({
       where: {
         customerId,
@@ -182,7 +182,7 @@ export class CancellingHandler {
 
   private async getAppointment(tenantId: string, appointmentId: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     const row = await db.appointment.findUnique({
       where: { id: appointmentId },
       select: {

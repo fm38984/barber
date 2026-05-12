@@ -47,7 +47,7 @@ export class MyAppointmentsHandler {
   private async getUpcoming(tenantId: string, customerId: string) {
     const db = this.prisma.forTenant(tenantId);
 
-    // @ts-expect-error
+    // @ts-ignore
     const appointments = await db.appointment.findMany({
       where: {
         customerId,

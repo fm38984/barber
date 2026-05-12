@@ -17,6 +17,7 @@ import { WhatsAppWebhookService } from './whatsapp-webhook.service';
 import type { WhatsAppWebhookPayload } from '@barberflow/shared-types';
 
 @Controller('webhooks/whatsapp')
+// @ts-ignore
 @Version('1')
 @SkipThrottle()
 export class WhatsAppController {

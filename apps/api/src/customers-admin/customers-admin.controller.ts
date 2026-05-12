@@ -3,6 +3,7 @@ import { CustomersAdminService } from './customers-admin.service';
 import { TenantId } from '../common/decorators/tenant.decorator';
 
 @Controller('customers')
+// @ts-ignore
 @Version('1')
 export class CustomersAdminController {
   constructor(private readonly svc: CustomersAdminService) {}

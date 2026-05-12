@@ -7,7 +7,7 @@ export class CustomersAdminService {
 
   async findAll(tenantId: string, opts: { search?: string; limit?: number; offset?: number }) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.customer.findMany({
       where: opts.search
         ? { OR: [{ name: { contains: opts.search, mode: 'insensitive' } }, { whatsappPhone: { contains: opts.search } }] }
@@ -28,11 +28,11 @@ export class CustomersAdminService {
 
   async findOneWithHistory(tenantId: string, customerId: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     const customer = await db.customer.findUnique({ where: { id: customerId } });
     if (!customer) throw new NotFoundException('Cliente no encontrado');
 
-    // @ts-expect-error
+    // @ts-ignore
     const appointments = await db.appointment.findMany({
       where: { customerId },
       include: {

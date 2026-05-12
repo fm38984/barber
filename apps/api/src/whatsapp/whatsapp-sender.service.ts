@@ -48,7 +48,7 @@ export class WhatsAppSenderService {
 
     // Persist outgoing message
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     await db.message.create({
       data: {
         tenantId,

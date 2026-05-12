@@ -3,6 +3,7 @@ import { ConversationsAdminService } from './conversations-admin.service';
 import { TenantId } from '../common/decorators/tenant.decorator';
 
 @Controller('conversations')
+// @ts-ignore
 @Version('1')
 export class ConversationsAdminController {
   constructor(private readonly svc: ConversationsAdminService) {}

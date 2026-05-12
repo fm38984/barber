@@ -10,7 +10,7 @@ export class AppointmentsService {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 7);
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.appointment.findMany({
       where: { scheduledAt: { gte: weekStart, lt: weekEnd } },
       include: {
@@ -27,7 +27,7 @@ export class AppointmentsService {
     opts: { from?: Date; to?: Date; barberId?: string; status?: string; limit?: number; offset?: number },
   ) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.appointment.findMany({
       where: {
         ...(opts.from || opts.to
@@ -49,11 +49,11 @@ export class AppointmentsService {
 
   async update(tenantId: string, id: string, dto: UpdateAppointmentDto) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     const existing = await db.appointment.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('Cita no encontrada');
 
-    // @ts-expect-error
+    // @ts-ignore
     return db.appointment.update({
       where: { id },
       data: {

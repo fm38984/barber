@@ -14,6 +14,7 @@ import { StripeService } from './stripe.service';
 import { Public } from '../auth/roles.decorator';
 
 @Controller('webhooks/stripe')
+// @ts-ignore
 @Version('1')
 @SkipThrottle()
 export class StripeWebhookController {

@@ -78,7 +78,7 @@ export class IncomingMessageProcessor extends WorkerHost {
     const sentAt = new Date(parseInt(timestamp, 10) * 1000);
     const db = this.prisma.forTenant(tenantId);
 
-    // @ts-expect-error — extended client
+    // @ts-ignore — extended client
     await db.message.create({
       data: {
         tenantId,

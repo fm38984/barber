@@ -35,4 +35,4 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
   CMD wget -qO- http://localhost:3001/api/health || exit 1
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/apps/api/src/main.js"]

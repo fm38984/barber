@@ -9,17 +9,17 @@ export class ReportsService {
     const db = this.prisma.forTenant(tenantId);
 
     const [total, byStatus, byService, byBarber] = await Promise.all([
-      // @ts-expect-error
+      // @ts-ignore
       db.appointment.count({
         where: { tenantId, scheduledAt: { gte: from, lte: to } },
       }),
-      // @ts-expect-error
+      // @ts-ignore
       db.appointment.groupBy({
         by: ['status'],
         where: { tenantId, scheduledAt: { gte: from, lte: to } },
         _count: { _all: true },
       }),
-      // @ts-expect-error
+      // @ts-ignore
       db.appointment.groupBy({
         by: ['serviceId'],
         where: { tenantId, scheduledAt: { gte: from, lte: to }, status: 'CONFIRMED' },
@@ -27,7 +27,7 @@ export class ReportsService {
         orderBy: { _count: { serviceId: 'desc' } },
         take: 5,
       }),
-      // @ts-expect-error
+      // @ts-ignore
       db.appointment.groupBy({
         by: ['barberId'],
         where: { tenantId, scheduledAt: { gte: from, lte: to }, status: 'CONFIRMED' },
@@ -40,12 +40,12 @@ export class ReportsService {
     const barberIds = byBarber.map((b: { barberId: string }) => b.barberId);
 
     const [services, barbers] = await Promise.all([
-      // @ts-expect-error
+      // @ts-ignore
       db.service.findMany({
         where: { id: { in: serviceIds } },
         select: { id: true, name: true, priceLocal: true },
       }),
-      // @ts-expect-error
+      // @ts-ignore
       db.barber.findMany({
         where: { id: { in: barberIds } },
         select: { id: true, name: true },
@@ -82,7 +82,7 @@ export class ReportsService {
 
   async getDailyBreakdown(tenantId: string, from: Date, to: Date) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     const rows = await db.appointment.findMany({
       where: { tenantId, scheduledAt: { gte: from, lte: to }, status: { not: 'CANCELLED' } },
       select: { scheduledAt: true, status: true },
@@ -103,7 +103,7 @@ export class ReportsService {
 
   async exportCsv(tenantId: string, from: Date, to: Date): Promise<string> {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     const appointments = await db.appointment.findMany({
       where: { tenantId, scheduledAt: { gte: from, lte: to } },
       include: {

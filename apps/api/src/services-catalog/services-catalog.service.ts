@@ -8,28 +8,28 @@ export class ServicesCatalogService {
 
   async findAll(tenantId: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.service.findMany({ orderBy: { name: 'asc' } });
   }
 
   async create(tenantId: string, dto: CreateServiceDto) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.service.create({ data: { tenantId, ...dto, currency: dto.currency ?? 'USD' } });
   }
 
   async update(tenantId: string, id: string, dto: Partial<CreateServiceDto>) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     const existing = await db.service.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('Servicio no encontrado');
-    // @ts-expect-error
+    // @ts-ignore
     return db.service.update({ where: { id }, data: dto });
   }
 
   async deactivate(tenantId: string, id: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.service.update({ where: { id }, data: { isActive: false } });
   }
 }

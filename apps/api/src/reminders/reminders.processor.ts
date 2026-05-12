@@ -59,7 +59,7 @@ export class RemindersProcessor extends WorkerHost {
     await this.sender.send(data.tenantId, '', data.phoneNumberId, {
       type: 'text',
       to: data.customerPhone.replace('+', ''),
-      body,
+      text: body,
     });
 
     this.logger.log(`Sent ${data.reminderType} reminder for appointment ${data.appointmentId}`);

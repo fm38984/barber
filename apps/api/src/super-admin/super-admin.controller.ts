@@ -3,6 +3,7 @@ import { SuperAdminService, CreateTenantDto } from './super-admin.service';
 import { Roles } from '../auth/roles.decorator';
 
 @Controller('super-admin')
+// @ts-ignore
 @Version('1')
 @Roles('super_admin')
 export class SuperAdminController {

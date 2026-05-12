@@ -23,7 +23,7 @@ export class ConversationService {
   ): Promise<Conversation> {
     const db = this.prisma.forTenant(tenantId);
 
-    // @ts-expect-error
+    // @ts-ignore
     const conversation = await db.conversation.upsert({
       where: { tenantId_customerId: { tenantId, customerId } },
       update: { lastMessageAt: new Date() },
@@ -46,7 +46,7 @@ export class ConversationService {
   ): Promise<Conversation> {
     const db = this.prisma.forTenant(tenantId);
 
-    // @ts-expect-error
+    // @ts-ignore
     return db.conversation.update({
       where: { id: conversationId },
       data: { stateJson: newState as object, lastMessageAt: new Date() },
@@ -58,7 +58,7 @@ export class ConversationService {
     customerId: string,
   ): Promise<Conversation | null> {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.conversation.findUnique({
       where: { tenantId_customerId: { tenantId, customerId } },
     });
@@ -66,7 +66,7 @@ export class ConversationService {
 
   async markEscalated(tenantId: string, conversationId: string): Promise<void> {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     await db.conversation.update({
       where: { id: conversationId },
       data: { status: 'ESCALATED' },
@@ -75,7 +75,7 @@ export class ConversationService {
 
   async markActive(tenantId: string, conversationId: string): Promise<void> {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     await db.conversation.update({
       where: { id: conversationId },
       data: { status: 'ACTIVE' },

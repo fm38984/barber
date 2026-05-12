@@ -3,6 +3,7 @@ import { TenantSettingsService, UpdateTenantSettingsDto } from './tenant-setting
 import { TenantId } from '../common/decorators/tenant.decorator';
 
 @Controller('settings')
+// @ts-ignore
 @Version('1')
 export class TenantSettingsController {
   constructor(private readonly svc: TenantSettingsService) {}

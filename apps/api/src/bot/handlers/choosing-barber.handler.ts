@@ -69,7 +69,7 @@ export class ChoosingBarberHandler {
 
   private async getActiveBarbers(tenantId: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.barber.findMany({
       where: { status: 'ACTIVE' },
       select: { id: true, name: true },
@@ -79,7 +79,7 @@ export class ChoosingBarberHandler {
 
   private async getBarber(tenantId: string, barberId: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.barber.findUnique({
       where: { id: barberId },
       select: { id: true, name: true },

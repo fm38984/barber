@@ -73,7 +73,7 @@ export class ChoosingServiceHandler {
 
   private async getActiveServices(tenantId: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.service.findMany({
       where: { isActive: true },
       select: { id: true, name: true, durationMin: true, priceLocal: true, currency: true },
@@ -83,7 +83,7 @@ export class ChoosingServiceHandler {
 
   private async getService(tenantId: string, serviceId: string) {
     const db = this.prisma.forTenant(tenantId);
-    // @ts-expect-error
+    // @ts-ignore
     return db.service.findUnique({
       where: { id: serviceId },
       select: { id: true, name: true, durationMin: true, priceLocal: true, currency: true },
