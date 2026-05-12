@@ -35,8 +35,9 @@ COPY --from=builder /app/node_modules ./node_modules
 # API-specific node_modules (pnpm does not hoist workspace deps to root);
 # symlinks inside point back into node_modules/.pnpm which is copied above
 COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
-# Generated Prisma client (resolved by @prisma/client at runtime)
-COPY --from=builder /app/packages/db/node_modules/.prisma ./node_modules/.prisma
+# packages/db/node_modules: contains @prisma/client symlink AND .prisma/client
+# generated files; packages/db/dist/client.js resolves @prisma/client from here
+COPY --from=builder /app/packages/db/node_modules ./packages/db/node_modules
 # Compiled workspace packages (apps/api/node_modules/@barberflow/* symlinks point here)
 COPY --from=builder /app/packages/db/dist ./packages/db/dist
 COPY --from=builder /app/packages/db/package.json ./packages/db/package.json
