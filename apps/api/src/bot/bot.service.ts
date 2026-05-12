@@ -47,7 +47,7 @@ export class BotService {
       return;
     }
 
-    const currentState = (conversation.stateJson ?? { state: 'IDLE' }) as ConversationStateData;
+    const currentState = (conversation.stateJson ?? { state: 'IDLE' }) as unknown as ConversationStateData;
 
     const input: HandlerInput = {
       tenantId: tenant.id,
