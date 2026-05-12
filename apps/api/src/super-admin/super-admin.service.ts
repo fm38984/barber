@@ -30,7 +30,7 @@ export class SuperAdminService {
       where: { id },
       include: {
         plan: true,
-        subscription: { orderBy: { createdAt: 'desc' }, take: 1 },
+        subscription: true,
         _count: { select: { barbers: true, appointments: true, customers: true } },
       },
     });
