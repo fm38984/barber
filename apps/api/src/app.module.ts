@@ -72,9 +72,9 @@ export class AppModule implements NestModule {
     consumer
       .apply(TenantMiddleware)
       .exclude(
-        '/api/health',
-        '/api/v1/webhooks/whatsapp',
-        '/api/v1/webhooks/stripe',
+        'health',
+        'v1/webhooks/whatsapp',
+        'v1/webhooks/stripe',
       )
       .forRoutes('*');
   }
