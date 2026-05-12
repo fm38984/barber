@@ -61,4 +61,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
 
 # Run from the API's own directory so pnpm symlinks resolve correctly
 WORKDIR /app/apps/api
-CMD ["sh", "-c", "/app/node_modules/.bin/prisma migrate deploy --schema=/app/packages/db/prisma/schema.prisma && node dist/main.js"]
+CMD ["sh", "-c", "/app/packages/db/node_modules/.bin/prisma migrate deploy --schema=/app/packages/db/prisma/schema.prisma && node dist/main.js"]
