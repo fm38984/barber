@@ -18,7 +18,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/packages/db/node_modules ./packages/db/node_modules
 COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
 COPY . .
-RUN pnpm --filter @barberflow/db generate
+# Generate Prisma client, then expose generated types to root node_modules
+# so TypeScript resolution (which follows pnpm symlinks to .pnpm store) finds them
+RUN pnpm --filter @barberflow/db generate && cp -r packages/db/node_modules/.prisma node_modules/
+RUN pnpm --filter @barberflow/shared-types build
+RUN pnpm --filter @barberflow/db build
 RUN pnpm --filter @barberflow/api build
 
 # ---- Runtime stage ----
@@ -35,4 +39,4 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
   CMD wget -qO- http://localhost:3001/api/health || exit 1
 
-CMD ["node", "dist/apps/api/src/main.js"]
+CMD ["node", "dist/main.js"]

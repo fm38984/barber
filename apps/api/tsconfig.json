@@ -2,12 +2,11 @@
   "extends": "@barberflow/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "../../",
-    "preserveSymlinks": true,
+    "rootDir": "./src",
     "exactOptionalPropertyTypes": false,
     "paths": {
-      "@barberflow/db": ["../../packages/db/src"],
-      "@barberflow/shared-types": ["../../packages/shared-types/src"]
+      "@barberflow/db": ["../../packages/db/dist"],
+      "@barberflow/shared-types": ["../../packages/shared-types/dist"]
     }
   },
   "include": ["src/**/*", "test/**/*"],

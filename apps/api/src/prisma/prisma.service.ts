@@ -1,6 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-import { getTenantClient, type TenantClient } from '@barberflow/db';
+import { PrismaClient, getTenantClient, type TenantClient } from '@barberflow/db';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
