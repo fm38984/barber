@@ -34,7 +34,8 @@ export class AppointmentsService {
           ? { scheduledAt: { ...(opts.from && { gte: opts.from }), ...(opts.to && { lte: opts.to }) } }
           : {}),
         ...(opts.barberId && { barberId: opts.barberId }),
-        ...(opts.status && { status: opts.status }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ...(opts.status && { status: opts.status as any }),
       },
       include: {
         customer: { select: { id: true, name: true, whatsappPhone: true } },

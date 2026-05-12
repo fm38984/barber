@@ -9,7 +9,8 @@ export class ConversationsAdminService {
     const db = this.prisma.forTenant(tenantId);
     // @ts-ignore
     return db.conversation.findMany({
-      where: status ? { tenantId, status } : { tenantId },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      where: (status ? { tenantId, status } : { tenantId }) as any,
       include: {
         customer: { select: { id: true, name: true, whatsappPhone: true } },
       },

@@ -3,6 +3,8 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
+    "declaration": false,
+    "declarationMap": false,
     "exactOptionalPropertyTypes": false,
     "paths": {
       "@barberflow/db": ["../../packages/db/dist"],
