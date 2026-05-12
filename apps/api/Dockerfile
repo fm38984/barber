@@ -30,13 +30,25 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY --from=builder /app/apps/api/dist ./dist
+# pnpm virtual store + hoisted packages (symlink targets live here)
 COPY --from=builder /app/node_modules ./node_modules
+# API-specific node_modules (pnpm does not hoist workspace deps to root);
+# symlinks inside point back into node_modules/.pnpm which is copied above
+COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
+# Generated Prisma client (resolved by @prisma/client at runtime)
 COPY --from=builder /app/packages/db/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/packages/db/prisma ./prisma
+# Compiled workspace packages (apps/api/node_modules/@barberflow/* symlinks point here)
+COPY --from=builder /app/packages/db/dist ./packages/db/dist
+COPY --from=builder /app/packages/db/package.json ./packages/db/package.json
+COPY --from=builder /app/packages/shared-types/dist ./packages/shared-types/dist
+COPY --from=builder /app/packages/shared-types/package.json ./packages/shared-types/package.json
+# Compiled API
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
 EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
   CMD wget -qO- http://localhost:3001/api/health || exit 1
 
+# Run from the API's own directory so pnpm symlinks resolve correctly
+WORKDIR /app/apps/api
 CMD ["node", "dist/main.js"]
