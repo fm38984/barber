@@ -1,12 +1,10 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Version } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body } from '@nestjs/common';
 import { BarbersService } from './barbers.service';
 import { CreateBarberDto } from './dto/create-barber.dto';
 import { TenantId } from '../common/decorators/tenant.decorator';
 import { Roles } from '../auth/roles.decorator';
 
 @Controller('barbers')
-// @ts-ignore
-@Version('1')
 export class BarbersController {
   constructor(private readonly svc: BarbersService) {}
 

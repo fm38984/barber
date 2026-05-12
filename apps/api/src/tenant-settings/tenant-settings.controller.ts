@@ -1,10 +1,8 @@
-import { Body, Controller, Get, Patch, Version } from '@nestjs/common';
+import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { TenantSettingsService, UpdateTenantSettingsDto } from './tenant-settings.service';
 import { TenantId } from '../common/decorators/tenant.decorator';
 
 @Controller('settings')
-// @ts-ignore
-@Version('1')
 export class TenantSettingsController {
   constructor(private readonly svc: TenantSettingsService) {}
 

@@ -1,11 +1,9 @@
-import { Controller, Get, Patch, Param, Body, Query, Version } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, Query } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { TenantId } from '../common/decorators/tenant.decorator';
 
 @Controller('appointments')
-// @ts-ignore
-@Version('1')
 export class AppointmentsController {
   constructor(private readonly svc: AppointmentsService) {}
 

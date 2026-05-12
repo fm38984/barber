@@ -1,10 +1,8 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Version } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { SuperAdminService, CreateTenantDto } from './super-admin.service';
 import { Roles } from '../auth/roles.decorator';
 
 @Controller('super-admin')
-// @ts-ignore
-@Version('1')
 @Roles('super_admin')
 export class SuperAdminController {
   constructor(private readonly svc: SuperAdminService) {}

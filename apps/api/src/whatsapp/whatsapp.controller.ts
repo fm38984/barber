@@ -9,7 +9,6 @@ import {
   UseGuards,
   BadRequestException,
   Logger,
-  Version,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { WhatsAppSignatureGuard } from './whatsapp-signature.guard';
@@ -17,8 +16,6 @@ import { WhatsAppWebhookService } from './whatsapp-webhook.service';
 import type { WhatsAppWebhookPayload } from '@barberflow/shared-types';
 
 @Controller('webhooks/whatsapp')
-// @ts-ignore
-@Version('1')
 @SkipThrottle()
 export class WhatsAppController {
   private readonly logger = new Logger(WhatsAppController.name);

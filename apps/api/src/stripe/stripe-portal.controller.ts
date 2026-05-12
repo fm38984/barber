@@ -1,10 +1,8 @@
-import { Body, Controller, Post, Version } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import { TenantId } from '../common/decorators/tenant.decorator';
 
 @Controller('billing/portal')
-// @ts-ignore
-@Version('1')
 export class StripePortalController {
   constructor(private readonly svc: StripeService) {}
 
