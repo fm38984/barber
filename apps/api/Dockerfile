@@ -1,5 +1,5 @@
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+RUN apk add --no-cache openssl && corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 # ---- Dependencies stage ----
 FROM base AS deps
@@ -27,8 +27,11 @@ RUN pnpm --filter @barberflow/api build
 
 # ---- Runtime stage ----
 FROM node:22-alpine AS runner
+RUN apk add --no-cache openssl
 WORKDIR /app
 ENV NODE_ENV=production
+# Required for Prisma to resolve .prisma/client through pnpm workspace symlinks
+ENV NODE_OPTIONS=--preserve-symlinks
 
 # pnpm virtual store + hoisted packages (symlink targets live here)
 COPY --from=builder /app/node_modules ./node_modules
