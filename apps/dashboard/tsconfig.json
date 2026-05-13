@@ -2,6 +2,7 @@
   "extends": "@barberflow/tsconfig/nextjs.json",
   "compilerOptions": {
     "outDir": "./dist",
+    "exactOptionalPropertyTypes": false,
     "paths": {
       "@/*": ["./src/*"]
     }
