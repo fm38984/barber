@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider localization={esES}>
+    <ClerkProvider localization={esES as any}>
       <html lang="es">
         <body>{children}</body>
       </html>
