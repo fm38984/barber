@@ -41,4 +41,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
   CMD wget -qO- http://localhost:3000 || exit 1
 
 WORKDIR /app/apps/dashboard
-CMD ["node_modules/.bin/next", "start", "--port", "3000"]
+CMD ["node_modules/.bin/next", "start"]
